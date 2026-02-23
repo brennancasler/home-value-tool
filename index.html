@@ -41,7 +41,7 @@ button:hover { background:#155fc2;}
     <input id="baths" type="number" placeholder="Bathrooms">
     <input id="sqft" type="number" placeholder="Square Feet">
     <select id="condition">
-      <option value="1">Needs Work</option>
+      <option value="0.95">Needs Work</option>
       <option value="1.05">Average</option>
       <option value="1.15">Updated</option>
       <option value="1.25">Fully Renovated</option>
@@ -130,13 +130,21 @@ async function generateResult(){
   let address = `${street}, ${city}, ${state} ${zip}`;
 
   let basePrice = await getBasePrice(zip);
-  let estimate = sqft * basePrice * condition;
+
+  let beds = parseInt(document.getElementById('beds').value) || 3;       // default baseline
+  let baths = parseInt(document.getElementById('baths').value) || 2;    // default baseline
+
+  let bedroomFactor = 1 + (beds - 3) * 0.03;   // +3% per bedroom over 3
+  let bathroomFactor = 1 + (baths - 2) * 0.05; // +5% per bath over 2
+  
+  let estimate = sqft * basePrice * condition * bedroomFactor * bathroomFactor;
 
   let low = Math.round(estimate * 0.93);
   let high = Math.round(estimate * 1.07);
 
   document.getElementById('result').innerHTML = `
     <h3>${address}</h3>
+    <p><strong>Price per sq ft used:</strong> $${basePrice.toLocaleString()}</p>
     <p><strong>Estimated Range:</strong></p>
     <h2>$${low.toLocaleString()} - $${high.toLocaleString()}</h2>
     <p>Based on recent Alpena-area sales and market trends.</p>
@@ -152,6 +160,7 @@ async function generateResult(){
     full_address: address,
     estimate_low: low,
     estimate_high: high,
+    price_per_sqft: basePrice
     source: "Home Value Tool"
   };
 fetch("https://script.google.com/macros/s/AKfycbzHLkSaGAS93cOnkklVtZ3px1TacjjFZ-B4q4ZFjV4aM2dCvim_tMBQRcsTv4uBabB2/exec", {
