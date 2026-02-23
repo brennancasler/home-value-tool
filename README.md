@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Alpena Home Value Estimator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f6f8;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 500px;
+  background: white;
+  margin: 40px auto;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+h2 {
+  text-align: center;
+  color: #222;
+}
+
+input, select, button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+button {
+  background: #1a73e8;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #155fc2;
+}
+
+.step {
+  display: none;
+}
+
+.step.active {
+  display: block;
+}
+
+.loader {
+  text-align: center;
+  font-size: 18px;
+}
+
+.result-box {
+  background: #eef3ff;
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 15px;
+  text-align: center;
+}
+
+.footer {
+  text-align: center;
+  font-size: 13px;
+  color: #777;
+  margin-top: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- STEP 1 -->
+  <div class="step active" id="step1">
+    <h2>🏠 Find Your Home’s Value</h2>
+
+    <input id="address" placeholder="Enter your address">
+
+    <button onclick="nextStep(2)">Continue</button>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step" id="step2">
+    <h2>Property Details</h2>
+
+    <input id="beds" type="number" placeholder="Bedrooms">
+    <input id="baths" type="number" placeholder="Bathrooms">
+    <input id="sqft" type="number" placeholder="Square Feet">
+
+    <select id="condition">
+      <option value="1">Needs Work</option>
+      <option value="1.05">Average</option>
+      <option value="1.15">Updated</option>
+      <option value="1.25">Fully Renovated</option>
+    </select>
+
+    <button onclick="nextStep(3)">Calculate</button>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step" id="step3">
+    <div class="loader">
+      🔍 Analyzing Local Sales...<br><br>
+      📊 Matching Comparables...<br><br>
+      ⏳ Calculating Value...
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="step" id="step4">
+    <h2>Get Your Full Report</h2>
+
+    <input id="name" placeholder="Your Name">
+    <input id="email" placeholder="Email Address">
+    <input id="phone" placeholder="Phone Number">
+
+    <button onclick="generateResult()">View My Value</button>
+  </div>
+
+  <!-- STEP 5 -->
+  <div class="step" id="step5">
+    <h2>Your Home Value</h2>
+
+    <div class="result-box" id="result"></div>
+
+    <p>
+      📞 Brennan Casler<br>
+      Alpena Real Estate Specialist
+    </p>
+
+    <button onclick="restart()">Check Another Home</button>
+  </div>
+
+  <div class="footer">
+    Free Alpena Market Analysis
+  </div>
+
+</div>
+
+<script>
+
+let basePrice = 120; // Price per sqft baseline for Alpena
+
+function nextStep(step) {
+
+  document.querySelectorAll('.step').forEach(s => {
+    s.classList.remove('active');
+  });
+
+  document.getElementById('step' + step).classList.add('active');
+
+  if(step === 3){
+    setTimeout(() => {
+      nextStep(4);
+    }, 2500);
+  }
+}
+
+function generateResult(){
+
+  let sqft = parseInt(document.getElementById('sqft').value);
+  let condition = parseFloat(document.getElementById('condition').value);
+
+  let estimate = sqft * basePrice * condition;
+
+  let low = Math.round(estimate * 0.93);
+  let high = Math.round(estimate * 1.07);
+
+  let address = document.getElementById('address').value;
+
+  document.getElementById('result').innerHTML = `
+    <h3>${address}</h3>
+    <p><strong>Estimated Range:</strong></p>
+    <h2>$${low.toLocaleString()} - $${high.toLocaleString()}</h2>
+    <p>Based on recent Alpena-area sales and market trends.</p>
+  `;
+
+  nextStep(5);
+
+  // LEAD DATA (for CRM later)
+  let lead = {
+    name: document.getElementById('name').value,
+    email: document.getElementById('email').value,
+    phone: document.getElementById('phone').value,
+    address: address,
+    estimate_low: low,
+    estimate_high: high
+  };
+
+  console.log("New Lead:", lead);
+}
+
+function restart(){
+  location.reload();
+}
+
+</script>
+
+</body>
+</html>
