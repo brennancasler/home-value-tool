@@ -88,7 +88,21 @@ button:hover {
     <div class="step active" id="step1">
   <h2>🏠 Find Your Home’s Value</h2>
 
-  <input id="address" placeholder="Enter your address">
+<div class="step active" id="step1">
+  <h2>🏠 Find Your Home’s Value</h2>
+
+  <input id="street" placeholder="Street Address (e.g. 123 Main St)">
+
+  <input id="city" placeholder="City" value="Alpena">
+
+  <select id="state">
+    <option value="MI">Michigan</option>
+  </select>
+
+  <input id="zip" placeholder="ZIP Code" maxlength="5">
+
+  <button onclick="nextStep(2)">Continue</button>
+</div>
 
   <button onclick="nextStep(2)">Continue</button>
 </div>
@@ -198,7 +212,14 @@ function generateResult(){
   `;
 
   nextStep(5);
+if(step === 2){
+  let street = document.getElementById('street').value;
 
+  if(street.trim() === ""){
+    alert("Please enter your street address.");
+    return;
+  }
+}
 let lead = {
   name: document.getElementById('name').value,
   email: document.getElementById('email').value,
