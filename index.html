@@ -6,113 +6,45 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body {
-  font-family: Arial, sans-serif;
-  background: #f4f6f8;
-  margin: 0;
-  padding: 0;
-}
-
-.container {
-  max-width: 500px;
-  background: white;
-  margin: 40px auto;
-  padding: 25px;
-  border-radius: 10px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.1);
-}
-
-h2 {
-  text-align: center;
-  color: #222;
-}
-
-input, select, button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 16px;
-}
-
-button {
-  background: #1a73e8;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #155fc2;
-}
-
-.step {
-  display: none;
-}
-
-.step.active {
-  display: block;
-}
-
-.loader {
-  text-align: center;
-  font-size: 18px;
-}
-
-.result-box {
-  background: #eef3ff;
-  padding: 15px;
-  border-radius: 8px;
-  margin-top: 15px;
-  text-align: center;
-}
-
-.footer {
-  text-align: center;
-  font-size: 13px;
-  color: #777;
-  margin-top: 20px;
-}
+body { font-family: Arial, sans-serif; background: #f4f6f8; margin:0; padding:0;}
+.container { max-width:500px; background:white; margin:40px auto; padding:25px; border-radius:10px; box-shadow:0 0 15px rgba(0,0,0,0.1);}
+h2 { text-align:center; color:#222;}
+input, select, button { width:100%; padding:12px; margin-top:10px; border-radius:6px; border:1px solid #ccc; font-size:16px;}
+button { background:#1a73e8; color:white; border:none; cursor:pointer;}
+button:hover { background:#155fc2;}
+.step { display:none;}
+.step.active { display:block;}
+.loader { text-align:center; font-size:18px;}
+.result-box { background:#eef3ff; padding:15px; border-radius:8px; margin-top:15px; text-align:center;}
+.footer { text-align:center; font-size:13px; color:#777; margin-top:20px;}
 </style>
 </head>
 
 <body>
-
 <div class="container">
 
   <!-- STEP 1: ADDRESS -->
   <div class="step active" id="step1">
     <h2>🏠 Find Your Home’s Value</h2>
-
     <input id="street" placeholder="Street Address (123 Main St)">
-
     <input id="city" placeholder="City" value="Alpena">
-
-    <select id="state">
-      <option value="MI">Michigan</option>
-    </select>
-
+    <select id="state"><option value="MI">Michigan</option></select>
     <input id="zip" placeholder="ZIP Code" maxlength="5" value="49707">
-
     <button onclick="nextStep(2)">Continue</button>
   </div>
 
   <!-- STEP 2: DETAILS -->
   <div class="step" id="step2">
     <h2>Property Details</h2>
-
     <input id="beds" type="number" placeholder="Bedrooms">
     <input id="baths" type="number" placeholder="Bathrooms">
     <input id="sqft" type="number" placeholder="Square Feet">
-
     <select id="condition">
       <option value="1">Needs Work</option>
       <option value="1.05">Average</option>
       <option value="1.15">Updated</option>
       <option value="1.25">Fully Renovated</option>
     </select>
-
     <button onclick="nextStep(3)">Calculate</button>
   </div>
 
@@ -128,29 +60,22 @@ button:hover {
   <!-- STEP 4: LEAD CAPTURE -->
   <div class="step" id="step4">
     <h2>Get Your Full Report</h2>
-
     <input id="name" placeholder="Your Name">
     <input id="email" placeholder="Email Address">
     <input id="phone" placeholder="Phone Number">
-
     <button onclick="generateResult()">View My Value</button>
   </div>
 
   <!-- STEP 5: RESULTS -->
   <div class="step" id="step5">
     <h2>Your Home Value</h2>
-
     <div class="result-box" id="result"></div>
-
-    <p>
-      📞 Brennan Casler<br>
+    <p>📞 Brennan Casler<br>
       Realtor at Real Estate One of Alpena<br>
-      215 W Chisholm St<br>
-      Alpena, MI 49707<br>
-      C: (989)590-0459<br>
-      O: (989)354-7653
-    </p>
-
+    215 W Chisohlm<br>
+    Alpena, MI 49707<br>
+    C: (989)590-0459<br>
+    O: (989)354-7653</p>
     <button onclick="restart()">Check Another Home</button>
   </div>
 
@@ -161,42 +86,41 @@ button:hover {
 </div>
 
 <script>
+// Default URL of your hosted JSON file
+const JSON_URL = "https://raw.githubusercontent.com/brennancasler/home-value-tool/main/base-prices.json";
 
-let basePrice = 120; // Baseline price per sqft for Alpena
+// Fetch base price from JSON
+async function getBasePrice(zip){
+  try{
+    let response = await fetch(JSON_URL);
+    let data = await response.json();
+    return data[zip] || 128; // default if ZIP not listed
+  } catch(e){
+    console.error("Could not load base prices", e);
+    return 128;
+  }
+}
 
-function nextStep(step) {
-
-  // Validation for Step 1
+function nextStep(step){
   if(step === 2){
     let street = document.getElementById('street').value;
     let zip = document.getElementById('zip').value;
-
     if(street.trim() === "" || zip.trim().length < 5){
       alert("Please enter a valid street address and ZIP code.");
       return;
     }
   }
-
-  document.querySelectorAll('.step').forEach(s => {
-    s.classList.remove('active');
-  });
-
-  document.getElementById('step' + step).classList.add('active');
-
-  // Fake processing delay
-  if(step === 3){
-    setTimeout(() => {
-      nextStep(4);
-    }, 2500);
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step'+step).classList.add('active');
+  if(step===3){
+    setTimeout(()=>{nextStep(4)},2500);
   }
 }
 
-function generateResult(){
-
+async function generateResult(){
   let sqft = parseInt(document.getElementById('sqft').value) || 0;
   let condition = parseFloat(document.getElementById('condition').value);
 
-  // Address fields
   let street = document.getElementById('street').value;
   let city   = document.getElementById('city').value;
   let state  = document.getElementById('state').value;
@@ -204,13 +128,12 @@ function generateResult(){
 
   let address = `${street}, ${city}, ${state} ${zip}`;
 
-  // Estimation formula
+  let basePrice = await getBasePrice(zip);
   let estimate = sqft * basePrice * condition;
 
   let low = Math.round(estimate * 0.93);
   let high = Math.round(estimate * 1.07);
 
-  // Display result
   document.getElementById('result').innerHTML = `
     <h3>${address}</h3>
     <p><strong>Estimated Range:</strong></p>
@@ -220,30 +143,23 @@ function generateResult(){
 
   nextStep(5);
 
-  // Lead object (ready for CRM integration)
   let lead = {
     name: document.getElementById('name').value,
     email: document.getElementById('email').value,
     phone: document.getElementById('phone').value,
-
-    street: street,
-    city: city,
-    state: state,
-    zip: zip,
+    street, city, state, zip,
     full_address: address,
-
     estimate_low: low,
     estimate_high: high,
     source: "Home Value Tool"
   };
-
-  console.log("New Lead:", lead);
+fetch("YOUR_WEB_APP_URL_HERE", {
+  method: "POST",
+  body: JSON.stringify(lead)
+});
 }
 
-function restart(){
-  location.reload();
-}
-
+function restart(){ location.reload(); }
 </script>
 
 </body>
