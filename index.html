@@ -81,24 +81,24 @@ button:hover {
 
 <div class="container">
 
-    <!-- STEP 1 -->
+  <!-- STEP 1: ADDRESS -->
   <div class="step active" id="step1">
     <h2>🏠 Find Your Home’s Value</h2>
 
-  <input id="street" placeholder="Street Address (e.g. 123 Main St)">
+    <input id="street" placeholder="Street Address (123 Main St)">
 
-  <input id="city" placeholder="City" value="Alpena">
+    <input id="city" placeholder="City" value="Alpena">
 
-  <select id="state">
-    <option value="MI">Michigan</option>
-  </select>
+    <select id="state">
+      <option value="MI">Michigan</option>
+    </select>
 
-  <input id="zip" placeholder="ZIP Code" maxlength="5" value="49707">
+    <input id="zip" placeholder="ZIP Code" maxlength="5">
 
-  <button onclick="nextStep(2)">Continue</button>
-</div>
+    <button onclick="nextStep(2)">Continue</button>
+  </div>
 
-  <!-- STEP 2 -->
+  <!-- STEP 2: DETAILS -->
   <div class="step" id="step2">
     <h2>Property Details</h2>
 
@@ -116,7 +116,7 @@ button:hover {
     <button onclick="nextStep(3)">Calculate</button>
   </div>
 
-  <!-- STEP 3 -->
+  <!-- STEP 3: LOADING -->
   <div class="step" id="step3">
     <div class="loader">
       🔍 Analyzing Local Sales...<br><br>
@@ -125,7 +125,7 @@ button:hover {
     </div>
   </div>
 
-  <!-- STEP 4 -->
+  <!-- STEP 4: LEAD CAPTURE -->
   <div class="step" id="step4">
     <h2>Get Your Full Report</h2>
 
@@ -136,7 +136,7 @@ button:hover {
     <button onclick="generateResult()">View My Value</button>
   </div>
 
-  <!-- STEP 5 -->
+  <!-- STEP 5: RESULTS -->
   <div class="step" id="step5">
     <h2>Your Home Value</h2>
 
@@ -144,7 +144,11 @@ button:hover {
 
     <p>
       📞 Brennan Casler<br>
-      Alpena Real Estate Specialist
+      Realtor at Real Estate One of Alpena<br>
+      215 W Chisholm St<br>
+      Alpena, MI 49707<br>
+      C: (989)590-0459<br>
+      O: (989)354-7653
     </p>
 
     <button onclick="restart()">Check Another Home</button>
@@ -158,9 +162,20 @@ button:hover {
 
 <script>
 
-let basePrice = 120; // Price per sqft baseline for Alpena
+let basePrice = 120; // Baseline price per sqft for Alpena
 
 function nextStep(step) {
+
+  // Validation for Step 1
+  if(step === 2){
+    let street = document.getElementById('street').value;
+    let zip = document.getElementById('zip').value;
+
+    if(street.trim() === "" || zip.trim().length < 5){
+      alert("Please enter a valid street address and ZIP code.");
+      return;
+    }
+  }
 
   document.querySelectorAll('.step').forEach(s => {
     s.classList.remove('active');
@@ -168,6 +183,7 @@ function nextStep(step) {
 
   document.getElementById('step' + step).classList.add('active');
 
+  // Fake processing delay
   if(step === 3){
     setTimeout(() => {
       nextStep(4);
@@ -177,14 +193,10 @@ function nextStep(step) {
 
 function generateResult(){
 
-  let sqft = parseInt(document.getElementById('sqft').value);
+  let sqft = parseInt(document.getElementById('sqft').value) || 0;
   let condition = parseFloat(document.getElementById('condition').value);
 
-  let estimate = sqft * basePrice * condition;
-
-  let low = Math.round(estimate * 0.93);
-  let high = Math.round(estimate * 1.07);
-
+  // Address fields
   let street = document.getElementById('street').value;
   let city   = document.getElementById('city').value;
   let state  = document.getElementById('state').value;
@@ -192,6 +204,13 @@ function generateResult(){
 
   let address = `${street}, ${city}, ${state} ${zip}`;
 
+  // Estimation formula
+  let estimate = sqft * basePrice * condition;
+
+  let low = Math.round(estimate * 0.93);
+  let high = Math.round(estimate * 1.07);
+
+  // Display result
   document.getElementById('result').innerHTML = `
     <h3>${address}</h3>
     <p><strong>Estimated Range:</strong></p>
@@ -200,46 +219,23 @@ function generateResult(){
   `;
 
   nextStep(5);
-if(step === 2){
-  let street = document.getElementById('street').value;
 
-  if(street.trim() === ""){
-    alert("Please enter your street address.");
-    return;
-  }
-}
-let lead = {
-  name: document.getElementById('name').value,
-  email: document.getElementById('email').value,
-  phone: document.getElementById('phone').value,
+  // Lead object (ready for CRM integration)
+  let lead = {
+    name: document.getElementById('name').value,
+    email: document.getElementById('email').value,
+    phone: document.getElementById('phone').value,
 
-  street: street,
-  city: city,
-  state: state,
-  zip: zip,
+    street: street,
+    city: city,
+    state: state,
+    zip: zip,
+    full_address: address,
 
-  full_address: address,
-
-  estimate_low: low,
-  estimate_high: high
-};
-
-  // LEAD DATA (for CRM later)
-let lead = {
-  name: document.getElementById('name').value,
-  email: document.getElementById('email').value,
-  phone: document.getElementById('phone').value,
-
-  street: street,
-  city: city,
-  state: state,
-  zip: zip,
-
-  full_address: address,
-
-  estimate_low: low,
-  estimate_high: high
-};
+    estimate_low: low,
+    estimate_high: high,
+    source: "Home Value Tool"
+  };
 
   console.log("New Lead:", lead);
 }
