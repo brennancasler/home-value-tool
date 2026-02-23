@@ -1,1 +1,33 @@
+name: Update Base Prices
 
+on:
+  schedule:
+    - cron: '0 0 1 * *' # Run 1st of each month
+  workflow_dispatch: {}  # Allows manual trigger
+
+jobs:
+  update-json:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install csv-parser
+        run: npm install csv-parser axios
+
+      - name: Run Update Script
+        run: node scripts/updateBasePrices.js
+
+      - name: Commit & Push changes
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git add base-prices.json
+          git commit -m "Auto-update base-prices.json"
+          git push
+        continue-on-error: true
