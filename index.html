@@ -85,7 +85,13 @@ button:hover {
   <div class="step active" id="step1">
     <h2>🏠 Find Your Home’s Value</h2>
 
-    <input id="address" placeholder="Enter your address">
+    <div class="step active" id="step1">
+  <h2>🏠 Find Your Home’s Value</h2>
+
+  <input id="address" placeholder="Enter your address">
+
+  <button onclick="nextStep(2)">Continue</button>
+</div>
 
     <button onclick="nextStep(2)">Continue</button>
   </div>
@@ -177,7 +183,12 @@ function generateResult(){
   let low = Math.round(estimate * 0.93);
   let high = Math.round(estimate * 1.07);
 
-  let address = document.getElementById('address').value;
+  let street = document.getElementById('street').value;
+  let city   = document.getElementById('city').value;
+  let state  = document.getElementById('state').value;
+  let zip    = document.getElementById('zip').value;
+
+  let address = `${street}, ${city}, ${state} ${zip}`;
 
   document.getElementById('result').innerHTML = `
     <h3>${address}</h3>
@@ -188,15 +199,38 @@ function generateResult(){
 
   nextStep(5);
 
+let lead = {
+  name: document.getElementById('name').value,
+  email: document.getElementById('email').value,
+  phone: document.getElementById('phone').value,
+
+  street: street,
+  city: city,
+  state: state,
+  zip: zip,
+
+  full_address: address,
+
+  estimate_low: low,
+  estimate_high: high
+};
+
   // LEAD DATA (for CRM later)
-  let lead = {
-    name: document.getElementById('name').value,
-    email: document.getElementById('email').value,
-    phone: document.getElementById('phone').value,
-    address: address,
-    estimate_low: low,
-    estimate_high: high
-  };
+let lead = {
+  name: document.getElementById('name').value,
+  email: document.getElementById('email').value,
+  phone: document.getElementById('phone').value,
+
+  street: street,
+  city: city,
+  state: state,
+  zip: zip,
+
+  full_address: address,
+
+  estimate_low: low,
+  estimate_high: high
+};
 
   console.log("New Lead:", lead);
 }
